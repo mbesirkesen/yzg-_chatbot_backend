@@ -11,3 +11,11 @@ turkish_cuisine_db/
 *.egg-info/
 dist/
 build/
+
+# Büyük veri dosyaları — repoya ekleme
+data/raw/
+data/*.parquet
+data/*.pkl
+# Küçük örnek veriler (data/sample_*.json, data/sample_*.csv) repoda kalır
+recipes_groq_cleaned.json
+sema.json

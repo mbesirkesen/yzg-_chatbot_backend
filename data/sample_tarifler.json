@@ -1,0 +1,49 @@
+{
+  "chunks": [
+    {
+      "id": "tarif-001",
+      "text": "Bu tarifin adı Sodalı Köfte. Bu bir ana yemek tarifidir ve zorluk derecesi kolay. Pişirme yöntemi: fırın. Malzemeler: 500 gr kıyma, 1 adet soğan, 0.5 çay bardağı galeta unu, 1 tatlı kaşığı tuz, 1 çay kaşığı kırmızı toz biber, 1 çay kaşığı kimyon, 0.5 çay kaşığı karabiber, 0.5 paket kabartma tozu, 1 şişe soda. Yapılış Adımları: 1. Derin bir kap içine soğan rendeleyin. 2. Kıymayı ekleyip yoğurun. 3. Baharatları ve galeta ununu ilave edin. 4. En son soda ve kabartma tozunu ekleyip yoğurun. 5. Köfteleri şekillendirip fırın tepsisine dizin. 6. 200 derece fırında 20 dakika pişirin.",
+      "tarif_adi": "Sodalı Köfte",
+      "kategori": "ana yemek",
+      "zorluk": "kolay",
+      "pisirme_yontemi": "fırın",
+      "pisirme_suresi_dk": 20
+    },
+    {
+      "id": "tarif-002",
+      "text": "Bu tarifin adı Mercimek Çorbası. Bu bir çorba tarifidir ve zorluk derecesi kolay. Pişirme yöntemi: tencere. Malzemeler: 1 su bardağı kırmızı mercimek, 1 adet soğan, 1 adet havuç, 2 yemek kaşığı tereyağı, 1 tatlı kaşığı tuz, 1 çay kaşığı kimyon, 1 çay kaşığı kırmızı toz biber, 5 su bardağı su. Yapılış Adımları: 1. Soğan ve havucu yağda kavurun. 2. Yıkanmış mercimeği ekleyin. 3. Suyu ilave edip kaynatın. 4. Kısık ateşte 25 dakika pişirin. 5. Blenderdan geçirip baharatları ekleyin. 6. Tereyağında kızdırılmış kırmızı biberle servis yapın.",
+      "tarif_adi": "Mercimek Çorbası",
+      "kategori": "çorba",
+      "zorluk": "kolay",
+      "pisirme_yontemi": "tencere",
+      "pisirme_suresi_dk": 30
+    },
+    {
+      "id": "tarif-003",
+      "text": "Bu tarifin adı Menemen. Bu bir kahvaltı tarifidir ve zorluk derecesi kolay. Pişirme yöntemi: tava. Malzemeler: 3 adet yumurta, 2 adet domates, 1 adet yeşil biber, 2 yemek kaşığı zeytinyağı, 1 çay kaşığı tuz, 0.5 çay kaşığı karabiber. Yapılış Adımları: 1. Biberi yağda kavurun. 2. Domatesleri ekleyip suyunu çekinceye kadar pişirin. 3. Yumurtaları kırıp karıştırın. 4. Tuz ve karabiber ekleyip karıştırarak 3-4 dakika daha pişirin.",
+      "tarif_adi": "Menemen",
+      "kategori": "kahvaltı",
+      "zorluk": "kolay",
+      "pisirme_yontemi": "tava",
+      "pisirme_suresi_dk": 10
+    },
+    {
+      "id": "tarif-004",
+      "text": "Bu tarifin adı İmam Bayıldı. Bu bir sebze yemeği tarifidir ve zorluk derecesi orta. Pişirme yöntemi: fırın. Malzemeler: 4 adet patlıcan, 2 adet soğan, 3 diş sarımsak, 3 adet domates, 4 yemek kaşığı zeytinyağı, 1 tatlı kaşığı tuz, 1 çay kaşığı şeker, 1 demet maydanoz. Yapılış Adımları: 1. Patlıcanları boylamasına kesin ve tuzlu suda bekletin. 2. Soğan ve sarımsağı zeytinyağında kavurun. 3. Domatesleri ekleyip 5 dakika pişirin. 4. Patlıcanları yağda kızartın. 5. İç harcı doldurun. 6. 180 derece fırında 40 dakika pişirin.",
+      "tarif_adi": "İmam Bayıldı",
+      "kategori": "sebze yemeği",
+      "zorluk": "orta",
+      "pisirme_yontemi": "fırın",
+      "pisirme_suresi_dk": 50
+    },
+    {
+      "id": "tarif-005",
+      "text": "Bu tarifin adı Baklava. Bu bir tatlı tarifidir ve zorluk derecesi zor. Pişirme yöntemi: fırın. Malzemeler: 500 gr yufka, 300 gr ceviz içi, 250 gr tereyağı, 2 su bardağı şeker, 1.5 su bardağı su, 1 yemek kaşığı limon suyu. Yapılış Adımları: 1. Şerbet için şeker ve suyu kaynatıp limon ekleyin, soğutun. 2. Yufkaları tepsiye eritilmiş tereyağı sürerek dizin. 3. Ortasına dövülmüş cevizi döşeyin. 4. Kalan yufkaları üstüne katın. 5. Baklavaları kesin ve üzerine tereyağı gezdirin. 6. 170 derece fırında 40 dakika altın rengi olana dek pişirin. 7. Fırından çıkar çıkmaz soğuk şerbeti dökün.",
+      "tarif_adi": "Baklava",
+      "kategori": "tatlı",
+      "zorluk": "zor",
+      "pisirme_yontemi": "fırın",
+      "pisirme_suresi_dk": 40
+    }
+  ]
+}
