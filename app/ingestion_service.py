@@ -22,6 +22,9 @@ logger = logging.getLogger(__name__)
 
 TEXT_KEYS = ("text", "content", "chunk", "body")
 
+# Tarif şemasından gelen büyük alanlar metadata'ya yazılmaz (Chroma sınırı + gürültü).
+_RECIPE_META_SKIP = frozenset({"malzemeler", "yapilis_adimlari"})
+
 
 @dataclass
 class IngestResult:
@@ -75,6 +78,71 @@ def _stable_id(raw_id: str | None, text: str, index: int) -> str:
     return f"chunk_{index}_{h}"
 
 
+def _format_ingredients(malzemeler: Any) -> str:
+    """recipes_groq_cleaned.json içindeki malzeme listesini metne çevirir."""
+    if not isinstance(malzemeler, list):
+        return "Belirtilmemiş"
+    parts: list[str] = []
+    for m in malzemeler:
+        if not isinstance(m, dict):
+            continue
+        miktar = m.get("miktar", "")
+        birim = m.get("birim", "")
+        isim = m.get("isim", "")
+        parts.append(f"{miktar} {birim} {isim}".strip())
+    return ", ".join(parts) if parts else "Belirtilmemiş"
+
+
+def _format_steps(adimlar: Any) -> str:
+    if not isinstance(adimlar, list) or not adimlar:
+        return "Belirtilmemiş"
+    return " ".join(f"{i + 1}. {adim}" for i, adim in enumerate(adimlar))
+
+
+def _recipe_page_content(recipe: dict[str, Any]) -> str:
+    """
+    vector_db_builder ile aynı fikir: semantik arama için tek parça Türkçe metin.
+    (Embedding RAGEngine'de passage: öneki ile yapılır.)
+    """
+    tarif_adi = recipe.get("tarif_adi") or "Belirtilmemiş"
+    kategori = recipe.get("kategori") or "Belirtilmemiş"
+    zorluk = recipe.get("zorluk") or "Belirtilmemiş"
+    py = recipe.get("pisirme_yontemi")
+    if isinstance(py, list):
+        pisirme_yontemi = ", ".join(str(x) for x in py) or "Belirtilmemiş"
+    elif py is None:
+        pisirme_yontemi = "Belirtilmemiş"
+    else:
+        pisirme_yontemi = str(py)
+    malzemeler_str = _format_ingredients(recipe.get("malzemeler"))
+    adimlar_str = _format_steps(recipe.get("yapilis_adimlari"))
+    return (
+        f"Bu tarifin adı {tarif_adi}. "
+        f"Bu bir {kategori} tarifidir ve zorluk derecesi {zorluk}. "
+        f"Pişirme yöntemi: {pisirme_yontemi}. "
+        f"Malzemeler: {malzemeler_str}. "
+        f"Yapılış Adımları: {adimlar_str}"
+    )
+
+
+def _looks_like_recipe_without_text(row: dict[str, Any]) -> bool:
+    """Kök liste formatındaki tarif kaydı (text/content yok, tarif_adi var)."""
+    if row.get("tarif_adi") is None:
+        return False
+    return _text_key_in_row(row) is None
+
+
+def _expand_recipe_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Tarif JSON'unu ingestion'ın beklediği şekilde text alanı ekler."""
+    out: list[dict[str, Any]] = []
+    for row in records:
+        if _looks_like_recipe_without_text(row):
+            out.append({**row, "text": _recipe_page_content(row)})
+        else:
+            out.append(row)
+    return out
+
+
 def _load_records_from_json(path: Path) -> list[dict[str, Any]]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if isinstance(raw, list):
@@ -119,7 +187,8 @@ def load_records(path: str | Path) -> list[dict[str, Any]]:
         raise FileNotFoundError(f"Dosya bulunamadı: {p}")
     suffix = p.suffix.lower()
     if suffix == ".json":
-        return _load_records_from_json(p)
+        records = _load_records_from_json(p)
+        return _expand_recipe_records(records)
     if suffix == ".csv":
         return _load_records_from_csv(p)
     raise ValueError(f"Desteklenen uzantılar: .json, .csv (verilen: {suffix})")
@@ -145,7 +214,11 @@ def ingest_path_sync(
             logger.warning("Satır %s atlandı: metin alanı yok.", i)
             continue
         text_col = _text_key_in_row(row)
-        exclude = {str(k) for k in TEXT_KEYS} | {"id", "ID", "Id"}
+        exclude = (
+            {str(k) for k in TEXT_KEYS}
+            | {"id", "ID", "Id"}
+            | set(_RECIPE_META_SKIP)
+        )
         if text_col:
             exclude.add(text_col)
         rid = row.get("id") or row.get("ID")

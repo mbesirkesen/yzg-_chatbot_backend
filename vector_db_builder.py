@@ -1,3 +1,8 @@
+# UYARI: Bu script BAAI/bge-m3 embedding kullanır. FastAPI RAG (app/) ise
+# intfloat/multilingual-e5-small kullanır — aynı Chroma klasöründe ikisini
+# karıştırmayın. Üretimde vektör yüklemek için: python -m app.ingestion_service <dosya.json>
+# Bu script varsayılan olarak ayrı koleksiyon adı (turkish_recipes) kullanır; API turkish_cuisine okur.
+#
 # =============================================================================
 # MODÜL 1: KURULUM KOMUTLARI
 # =============================================================================

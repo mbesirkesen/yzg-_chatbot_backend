@@ -5,6 +5,7 @@ LLM soyutlaması: şimdilik Mock; Groq/Claude eklendiğinde aynı arayüz kullan
 from __future__ import annotations
 
 import asyncio
+import httpx
 from typing import Protocol, runtime_checkable
 
 from app.config import Settings, get_settings
@@ -69,16 +70,43 @@ class MockLLMService:
 
 
 class GroqLLMService:
-    """
-    Gelecek: Groq API entegrasyonu burada yapılacak.
-    Örnek: self._settings.groq_api_key ile istemci oluştur, SYSTEM_PROMPT_TURKISH_CHEF gönder.
-    """
+    """Groq OpenAI-uyumlu endpoint ile gerçek yanıt üretir."""
 
     def __init__(self, settings: Settings | None = None) -> None:
         self._settings = settings or get_settings()
 
     async def generate(self, user_message: str, context: str) -> str:
-        raise NotImplementedError("GroqLLMService henüz uygulanmadı; LLM_PROVIDER=mock kullanın.")
+        if not self._settings.groq_api_key:
+            raise RuntimeError("GROQ_API_KEY tanımlı değil.")
+
+        payload = {
+            "model": self._settings.groq_model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT_TURKISH_CHEF},
+                {"role": "user", "content": _build_user_content(user_message, context)},
+            ],
+            "temperature": 0.4,
+        }
+        headers = {
+            "Authorization": f"Bearer {self._settings.groq_api_key}",
+            "Content-Type": "application/json",
+        }
+
+        url = f"{self._settings.groq_base_url.rstrip('/')}/chat/completions"
+        timeout = httpx.Timeout(45.0, connect=15.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+
+        choices = data.get("choices") or []
+        if not choices:
+            raise RuntimeError("Groq yanıtında choices bulunamadı.")
+        message = choices[0].get("message") or {}
+        content = (message.get("content") or "").strip()
+        if not content:
+            raise RuntimeError("Groq boş içerik döndü.")
+        return content
 
 
 class ClaudeLLMService:

@@ -15,15 +15,19 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        populate_by_name=True,
     )
 
     chroma_persist_dir: str = Field(
         default="./turkish_cuisine_db",
         description="Chroma kalıcı veritabanı klasörü",
+        # Sadece APP_*: makinede kalmış genel CHROMA_PERSIST_DIR ile çakışmayı önler.
+        validation_alias="APP_CHROMA_PERSIST_DIR",
     )
     chroma_collection_name: str = Field(
         default="turkish_cuisine",
         description="Chroma koleksiyon adı",
+        validation_alias="APP_CHROMA_COLLECTION_NAME",
     )
     embedding_model: str = Field(
         default="intfloat/multilingual-e5-small",
@@ -38,10 +42,18 @@ class Settings(BaseSettings):
 
     # Gelecekte LLM sağlayıcıları için (şimdilik opsiyonel)
     groq_api_key: str | None = Field(default=None)
+    groq_model: str = Field(
+        default="llama-3.1-8b-instant",
+        description="Groq model adı",
+    )
+    groq_base_url: str = Field(
+        default="https://api.groq.com/openai/v1",
+        description="Groq OpenAI-uyumlu API taban URL'i",
+    )
     anthropic_api_key: str | None = Field(default=None)
     llm_provider: str = Field(
         default="mock",
-        description="mock | groq | anthropic (yalnızca mock uygulanmıştır)",
+        description="mock | groq | anthropic",
     )
 
     def cors_origins_list(self) -> list[str]:
