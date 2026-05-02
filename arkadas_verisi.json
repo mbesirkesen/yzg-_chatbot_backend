@@ -1,0 +1,22 @@
+{
+  "chunks": [
+    {
+      "id": "ornek-1",
+      "text": "İskender kebap, Bursa mutfağına özgü döner etin domates sosu ve tereyağı ile servis edildiği bir yemektir. Genellikle yanında yoğurt ve pide ile sunulur.",
+      "dish_name": "İskender kebap",
+      "region": "Bursa"
+    },
+    {
+      "id": "ornek-2",
+      "text": "Gaziantep baklavası ince yufka, antep fıstığı ve şerbet ile yapılır. Kat kat açılan hamur kısa sürede yüksek ateşte pişirilir; coğrafi işaret almıştır.",
+      "dish_name": "Baklava",
+      "region": "Gaziantep"
+    },
+    {
+      "id": "ornek-3",
+      "text": "Karadeniz mısır ekmeği (tırnak pide) mısır unu ve buğday ununun karışımıyla yapılır; hamsi tava veya lahana sarması gibi yöresel tabakların yanında sıkça yer alır.",
+      "dish_name": "Mısır ekmeği",
+      "region": "Karadeniz"
+    }
+  ]
+}

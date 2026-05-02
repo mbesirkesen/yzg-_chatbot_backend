@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.env
+turkish_cuisine_db/
+.idea/
+.vscode/
+*.egg-info/
+dist/
+build/
