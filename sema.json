@@ -1,0 +1,22 @@
+{
+  "tarif_adi": "Sodalı Köfte",
+  "kategori": "ana yemek",
+  "porsiyon": null,
+  "hazirlik_suresi_dk": null,
+  "pisirme_suresi_dk": 20,
+  "zorluk": "kolay",
+  "pisirme_yontemi": ["fırın"],
+  "malzemeler": [
+    {"isim": "kıyma", "miktar": 500, "birim": "gr"},
+    {"isim": "soğan", "miktar": 1, "birim": "adet"}
+  ],
+  "yapilis_adimlari": [
+    "Derin bir kap içine soğan rendeleyin.",
+    "Kıymayı ekleyip yoğurun."
+  ],
+  "_source": {
+    "raw_name": "Sodalı Köfte",
+    "index": 0,
+    "content_hash": "697e96e5034c"
+  }
+}
