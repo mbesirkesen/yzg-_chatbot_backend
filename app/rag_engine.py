@@ -7,10 +7,12 @@ E5 retrieval kuralı: sorgular \"query: \", dokümanlar \"passage: \" öneki ile
 from __future__ import annotations
 
 import asyncio
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
 import chromadb
+import torch
 from chromadb.api.models.Collection import Collection
 from sentence_transformers import SentenceTransformer
 
@@ -73,7 +75,8 @@ class RAGEngine:
 
     def _load_model_sync(self) -> SentenceTransformer:
         if self._model is None:
-            self._model = SentenceTransformer(self._settings.embedding_model)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            self._model = SentenceTransformer(self._settings.embedding_model, device=device)
         return self._model
 
     def _get_collection_sync(self) -> Collection:
@@ -147,6 +150,8 @@ class RAGEngine:
         lines: list[str] = []
         for i, doc in enumerate(docs):
             doc = doc or ""
+            doc = re.sub(r'\bNone\b', '', doc)
+            doc = re.sub(r'\s{2,}', ' ', doc).strip()
             meta = dict(metas[i]) if i < len(metas) and metas[i] else {}
             sid = ids[i] if i < len(ids) else None
             snippet = doc[:280] + ("…" if len(doc) > 280 else "")

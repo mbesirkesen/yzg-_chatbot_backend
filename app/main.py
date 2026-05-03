@@ -7,14 +7,42 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from app.config import get_settings
 from app.llm_service import get_llm_service
-from app.rag_engine import RAGEngine
+from app.rag_engine import RAGEngine, RAGRetrieveResult
 from app.schemas import ChatRequest, ChatResponse, SourceItem
+
+_ORDINAL_WORDS = {
+    "ilk", "birinci", "ikinci", "üçüncü", "dördüncü", "beşinci",
+    "altıncı", "yedinci", "sekizinci", "dokuzuncu", "onuncu",
+    "1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.", "9.", "10.",
+}
+
+
+def _is_reference_query(msg: str) -> bool:
+    """Sıralı/işaret referansı içeren kısa sorgu mu? (RAG atlanır)"""
+    words = msg.lower().split()
+    return len(words) <= 5 and any(w in _ORDINAL_WORDS for w in words)
+
+
+def _is_list_selection(msg: str, history: list) -> bool:
+    """Önceki bot mesajında liste varsa ve kullanıcı kısa bir seçim yaptıysa RAG'ı atla."""
+    if len(msg.split()) > 7 or '?' in msg:
+        return False
+    for h in reversed(history):
+        if h.role == "assistant":
+            return "Hangisini istersiniz" in h.content
+    return False
+
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["20/minute"])
 
 
 @asynccontextmanager
@@ -35,6 +63,8 @@ app = FastAPI(
     description="RAG tabanlı Türk mutfağı asistanı backend'i.",
     lifespan=lifespan,
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 _settings_for_cors = get_settings()
 _origins = _settings_for_cors.cors_origins_list()
@@ -88,10 +118,18 @@ async def health() -> dict[str, Any]:
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(body: ChatRequest) -> ChatResponse:
+@limiter.limit("20/minute")
+async def chat(request: Request, body: ChatRequest) -> ChatResponse:
     """
     Kullanıcı mesajını alır, Chroma'dan bağlam getirir, LLM ile yanıt üretir.
     """
+    msg = body.message.strip()
+    if len(msg) < 5 or len(msg.split()) < 2:
+        return ChatResponse(
+            answer="Lütfen sorunuzu daha ayrıntılı belirtin. "
+                   "Örneğin: \"Tavuklu yemek tarifi ver\" veya \"Kolay bir tatlı önerir misin?\"",
+        )
+
     rag: RAGEngine = app.state.rag
     llm = app.state.llm
     settings = app.state.settings
@@ -99,7 +137,16 @@ async def chat(body: ChatRequest) -> ChatResponse:
     top_k = body.top_k if body.top_k is not None else settings.default_top_k
 
     try:
-        rag_result = await rag.retrieve(body.message.strip(), top_k)
+        skip_rag = (
+            (_is_reference_query(msg) and body.history) or
+            _is_list_selection(msg, body.history)
+        )
+        if skip_rag:
+            rag_result = RAGRetrieveResult(
+                context="", sources=[], raw_documents=[], collection_empty=False
+            )
+        else:
+            rag_result = await rag.retrieve(msg, top_k)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=f"RAG hatası: {e}") from e
 
@@ -111,7 +158,8 @@ async def chat(body: ChatRequest) -> ChatResponse:
         )
 
     try:
-        answer = await llm.generate(body.message, rag_result.context)
+        history = [{"role": h.role, "content": h.content} for h in body.history]
+        answer = await llm.generate(body.message, rag_result.context, history)
     except NotImplementedError as e:
         raise HTTPException(status_code=501, detail=str(e)) from e
     except Exception as e:  # noqa: BLE001

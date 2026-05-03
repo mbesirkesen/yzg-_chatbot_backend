@@ -7,6 +7,13 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+class HistoryMessage(BaseModel):
+    """Tek bir geçmiş mesaj satırı."""
+
+    role: str = Field(..., description="user | assistant")
+    content: str
+
+
 class ChatRequest(BaseModel):
     """POST /chat gövdesi."""
 
@@ -21,6 +28,10 @@ class ChatRequest(BaseModel):
     include_retrieved_chunks: bool = Field(
         default=False,
         description="True ise yanıtta ham alınan parçalar da döner (debug)",
+    )
+    history: list[HistoryMessage] = Field(
+        default_factory=list,
+        description="Son N mesaj (kullanıcı + asistan); bağlam için LLM'e iletilir",
     )
 
 

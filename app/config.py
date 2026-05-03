@@ -38,7 +38,13 @@ class Settings(BaseSettings):
         default="*",
         description="İzin verilen CORS origin'leri (virgülle ayrılmış veya *)",
     )
-    default_top_k: int = Field(default=5, ge=1, le=50, description="RAG varsayılan sonuç sayısı")
+    default_top_k: int = Field(
+        default=5,
+        ge=1,
+        le=50,
+        description="RAG varsayılan sonuç sayısı",
+        validation_alias="DEFAULT_TOP_K",
+    )
 
     # Gelecekte LLM sağlayıcıları için (şimdilik opsiyonel)
     groq_api_key: str | None = Field(default=None)
